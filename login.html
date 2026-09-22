@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ورود | داماکور</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="auth.css">
+</head>
+<body>
+  
+  <div class="particles" aria-hidden="true">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+  
+  <header class="header auth-header">
+    <div class="logo-wrapper">
+      <img src="assets/logo.png" alt="داماکور" class="logo-img">
+      <h1 class="logo-title">داماکور</h1>
+    </div>
+  </header>
+  
+  <main class="auth-container">
+    
+    <div class="auth-card">
+      <!-- تب‌ها -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="loginTab">ورود</button>
+        <button class="auth-tab" id="signupTab">ثبت‌نام</button>
+      </div>
+      
+      <!-- فرم ورود -->
+      <form class="auth-form active" id="loginForm">
+        <h2 class="auth-title">خوش برگشتی! 👋</h2>
+        
+        <div class="input-group">
+          <label>ایمیل</label>
+          <input type="email" id="loginEmail" placeholder="example@email.com" required>
+        </div>
+        
+        <div class="input-group">
+          <label>رمز عبور</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary auth-submit">
+          ورود
+        </button>
+        
+        <p class="auth-message" id="loginMessage"></p>
+      </form>
+      
+      <!-- فرم ثبت‌نام -->
+      <form class="auth-form" id="signupForm">
+        <h2 class="auth-title">خوش اومدی! 🎉</h2>
+        
+        <div class="input-group">
+          <label>ایمیل</label>
+          <input type="email" id="signupEmail" placeholder="example@email.com" required>
+        </div>
+        
+        <div class="input-group">
+          <label>رمز عبور</label>
+          <input type="password" id="signupPassword" placeholder="حداقل ۶ کاراکتر" required minlength="6">
+        </div>
+        
+        <button type="submit" class="btn btn-primary auth-submit">
+          ثبت‌نام
+        </button>
+        
+        <p class="auth-message" id="signupMessage"></p>
+      </form>
+    </div>
+    
+    <a href="index.html" class="btn btn-secondary back-btn">
+      <span class="btn-icon">←</span>
+      <span>برگشت</span>
+    </a>
+    
+  </main>
+  
+  <footer class="footer">
+    <p>© ۱۴۰۵ داماکور | ساخته شده توسط پروگ آرت</p>
+  </footer>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="auth.js"></script>
+  
+</body>
+</html>
