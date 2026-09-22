@@ -1,2 +1,0 @@
-SUPABASE_URL = https://mzbanumtqymytohthqoq.supabase.co
-SUPABASE_KEY = sb_publishable_-5Zhn5oVMd-XsGc2AUo7mg_NRMNSiFf
