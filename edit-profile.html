@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ویرایش پروفایل | داماکور</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="profile.css">
+  <link rel="stylesheet" href="edit-profile.css">
+</head>
+<body>
+  
+  <div class="particles" aria-hidden="true">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+  
+  <header class="header profile-header">
+    <div class="logo-wrapper">
+      <img src="assets/logo.png" alt="داماکور" class="logo-img">
+      <h1 class="logo-title">داماکور</h1>
+    </div>
+  </header>
+  
+  <main class="edit-container">
+    
+    <!-- لودینگ -->
+    <div class="loading-profile" id="loadingEdit">
+      <div class="spinner"></div>
+      <p>در حال بارگذاری...</p>
+    </div>
+    
+    <!-- فرم -->
+    <div class="edit-card" id="editForm" style="display: none;">
+      
+      <h2 class="edit-title">✏️ ویرایش پروفایل</h2>
+      
+      <!-- اسم -->
+      <div class="input-group">
+        <label for="editName">اسم نمایشی</label>
+        <input 
+          type="text" 
+          id="editName" 
+          placeholder="اسمت رو بنویس..." 
+          maxlength="20"
+          autocomplete="off"
+        >
+        <span class="input-hint">حداکثر ۲۰ کاراکتر</span>
+      </div>
+      
+      <!-- آیدی -->
+      <div class="input-group">
+        <label for="editUserId">آیدی کاربری</label>
+        <div class="input-with-prefix">
+          <span class="prefix">@</span>
+          <input 
+            type="text" 
+            id="editUserId" 
+            placeholder="username" 
+            maxlength="20"
+            autocomplete="off"
+            dir="ltr"
+          >
+        </div>
+        <span class="input-hint">فقط حروف انگلیسی، عدد و _ | برای چت استفاده می‌شه</span>
+      </div>
+      
+      <!-- بیو -->
+      <div class="input-group">
+        <label for="editBio">بیوگرافی</label>
+        <textarea 
+          id="editBio" 
+          placeholder="یه چیزی درباره خودت بنویس..."
+          maxlength="150"
+          rows="3"
+        ></textarea>
+        <span class="input-hint"><span id="bioCount">۰</span> / ۱۵۰</span>
+      </div>
+      
+      <!-- پیام -->
+      <p class="edit-message" id="editMessage"></p>
+      
+      <!-- دکمه‌ها -->
+      <div class="edit-buttons">
+        <button class="btn btn-primary" id="saveBtn">
+          <span class="btn-icon">💾</span>
+          <span>ذخیره تغییرات</span>
+        </button>
+        
+        <a href="profile.html" class="btn btn-secondary">
+          <span class="btn-icon">←</span>
+          <span>برگشت</span>
+        </a>
+      </div>
+      
+    </div>
+    
+  </main>
+  
+  <footer class="footer">
+    <p>© ۱۴۰۵ داماکور | ساخته شده توسط پروگ آرت</p>
+  </footer>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="edit-profile.js"></script>
+  
+</body>
+</html>
