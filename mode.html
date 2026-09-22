@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>انتخاب حالت | داماکور</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="mode.css">
+</head>
+<body>
+  
+  <div class="particles" aria-hidden="true">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+  
+  <header class="header mode-header">
+    <div class="logo-wrapper">
+      <img src="assets/logo.png" alt="داماکور" class="logo-img">
+      <h1 class="logo-title">داماکور</h1>
+    </div>
+  </header>
+  
+  <!-- ─── نمایش داماکوین ─── -->
+  <div class="coin-badge">
+    <span class="coin-icon">🪙</span>
+    <span class="coin-count" id="coinCount">۰</span>
+    <span class="coin-label">داماکوین</span>
+  </div>
+  
+  <main class="mode-menu">
+    <h2 class="mode-title">حالت بازی رو انتخاب کن</h2>
+    
+    <div class="mode-options">
+      
+      <!-- 🤖 بازی با ربات -->
+      <a href="difficulty.html" class="mode-card">
+        <div class="mode-icon">🤖</div>
+        <div class="mode-info">
+          <h3>بازی با ربات</h3>
+          <p>با هوش مصنوعی داماکور بازی کن</p>
+        </div>
+        <div class="mode-arrow">←</div>
+      </a>
+      
+      <!-- 🌐 بازی آنلاین -->
+      <a href="online.html" class="mode-card">
+        <div class="mode-icon">🌐</div>
+        <div class="mode-info">
+          <h3>بازی آنلاین</h3>
+          <p>با دوستات یا بازیکن‌های دیگه</p>
+        </div>
+        <div class="mode-arrow">←</div>
+      </a>
+      
+    </div>
+    
+    <a href="index.html" class="btn btn-secondary back-btn">
+      <span class="btn-icon">←</span>
+      <span>برگشت به منوی اصلی</span>
+    </a>
+  </main>
+  
+  <footer class="footer">
+    <p>© ۱۴۰۵ داماکور | ساخته شده توسط پروگ آرت</p>
+  </footer>
+  
+  <script src="storage.js"></script>
+  <script>
+    const profile = Storage.getProfile();
+    const count = profile.damacoin || 0;
+    const persian = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+    document.getElementById('coinCount').textContent = 
+      String(count).split('').map(d => persian[d] || d).join('');
+  </script>
+  
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بازی | داماکور</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="game.css">
+</head>
+<body class="game-page">
+  
+  <div class="particles" aria-hidden="true">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+  
+  <!-- ═══ هدر بازی ═══ -->
+  <header class="game-header">
+    <a href="difficulty.html" class="back-icon">←</a>
+    
+    <div class="game-title">
+      <img src="assets/logo.png" alt="" class="mini-logo">
+      <span>داماکور</span>
+    </div>
+    
+    <button class="reset-btn" id="resetBtn" title="بازی جدید">🔄</button>
+  </header>
+  
+  <!-- ═══ اطلاعات حریف ═══ -->
+  <div class="player-bar opponent-bar" id="opponentBar">
+    <div class="player-info">
+      <span class="player-dot black"></span>
+      <span class="player-name" id="opponentName">حریف</span>
+    </div>
+    <div class="player-stats">
+      <span class="stat">
+        <span class="stat-icon">🪙</span>
+        <span id="opponentPieces">۱۲</span>
+      </span>
+    </div>
+  </div>
+  
+  <!-- ═══ تخته بازی ═══ -->
+  <div class="board-wrapper">
+    <canvas id="board" width="480" height="480"></canvas>
+  </div>
+  
+  <!-- ═══ اطلاعات شما ═══ -->
+  <div class="player-bar my-bar" id="myBar">
+    <div class="player-info">
+      <span class="player-dot white"></span>
+      <span class="player-name" id="myName">شما</span>
+    </div>
+    <div class="player-stats">
+      <span class="stat">
+        <span class="stat-icon">🪙</span>
+        <span id="myPieces">۱۲</span>
+      </span>
+    </div>
+  </div>
+  
+  <!-- ═══ نمایش داماکوین وسط بازی ═══ -->
+  <div class="game-coin-display" id="gameCoinDisplay">
+    <span class="game-coin-icon">🪙</span>
+    <span class="game-coin-amount" id="gameCoin">۰</span>
+    <span class="game-coin-earned" id="coinEarned"></span>
+  </div>
+  
+  <!-- ═══ نوار وضعیت ═══ -->
+  <div class="status-bar" id="statusBar">
+    نوبت شماست
+  </div>
+  
+  <!-- ═══ پیام برنده ═══ -->
+  <div class="winner-modal" id="winnerModal">
+    <div class="winner-content">
+      <div class="winner-icon" id="winnerIcon">🎉</div>
+      <h2 class="winner-text" id="winnerText">بردی!</h2>
+      <div class="winner-buttons">
+        <button class="btn btn-primary" id="playAgainBtn">
+          <span class="btn-icon">🔄</span>
+          <span>بازی جدید</span>
+        </button>
+        <a href="mode.html" class="btn btn-secondary">
+          <span class="btn-icon">🏠</span>
+          <span>منوی اصلی</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <script src="storage.js"></script>
+  <script src="game.js"></script>
+  
+</body>
+</html>
