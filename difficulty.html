@@ -96,14 +96,17 @@
     <p>© ۱۴۰۵ داماکور | ساخته شده توسط پروگ آرت</p>
   </footer>
   
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
   <script src="storage.js"></script>
   <script>
-    // نمایش داماکوین فعلی
-    const profile = Storage.getProfile();
-    const count = profile.damacoin || 0;
-    const persian = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
-    document.getElementById('coinCount').textContent = 
-      String(count).split('').map(d => persian[d] || d).join('');
+    (async function() {
+      const persian = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+      const fa = (n) => String(n).split('').map(d => persian[d] || d).join('');
+      
+      const profile = await Storage.getProfile();
+      document.getElementById('coinCount').textContent = fa(profile.damacoin || 0);
+    })();
   </script>
   
 </body>
