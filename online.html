@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بازی آنلاین | داماکور</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="online.css">
+</head>
+<body>
+  
+  <div class="particles" aria-hidden="true">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+  
+  <header class="header online-header">
+    <div class="logo-wrapper">
+      <img src="assets/logo.png" alt="داماکور" class="logo-img">
+      <h1 class="logo-title">داماکور</h1>
+    </div>
+  </header>
+  
+  <main class="online-menu">
+    <h2 class="online-title">بازی آنلاین</h2>
+    <p class="online-subtitle">با دوستات بازی کن</p>
+    
+    <!-- 🎮 ساخت اتاق -->
+    <button class="online-card create-card" id="createRoomBtn">
+      <div class="online-icon">🎮</div>
+      <div class="online-info">
+        <h3>ساخت اتاق</h3>
+        <p>یه اتاق بساز و کدش رو به دوستت بده</p>
+      </div>
+      <div class="online-arrow">←</div>
+    </button>
+    
+    <!-- 🔗 پیوستن -->
+    <button class="online-card join-card" id="joinRoomBtn">
+      <div class="online-icon">🔗</div>
+      <div class="online-info">
+        <h3>پیوستن با کد</h3>
+        <p>کد اتاق دوستت رو وارد کن</p>
+      </div>
+      <div class="online-arrow">←</div>
+    </button>
+    
+    <a href="mode.html" class="btn btn-secondary back-btn">
+      <span class="btn-icon">←</span>
+      <span>برگشت</span>
+    </a>
+  </main>
+  
+  <!-- ═══ مودال ساخت اتاق ═══ -->
+  <div class="modal" id="createModal">
+    <div class="modal-content">
+      <div class="modal-icon">🎮</div>
+      <h2 class="modal-title">اتاق ساخته شد!</h2>
+      <p class="modal-desc">این کد رو به دوستت بده تا بهت وصل شه:</p>
+      
+      <div class="room-code-box">
+        <span class="room-code" id="roomCodeDisplay">------</span>
+      </div>
+      
+      <button class="btn btn-primary copy-btn" id="copyCodeBtn">
+        <span class="btn-icon">📋</span>
+        <span>کپی کد</span>
+      </button>
+      
+      <div class="waiting-indicator">
+        <div class="waiting-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <p>منتظر حریف...</p>
+      </div>
+      
+      <button class="btn btn-secondary" id="cancelRoomBtn">
+        <span class="btn-icon">✕</span>
+        <span>لغو</span>
+      </button>
+    </div>
+  </div>
+  
+  <!-- ═══ مودال پیوستن ═══ -->
+  <div class="modal" id="joinModal">
+    <div class="modal-content">
+      <div class="modal-icon">🔗</div>
+      <h2 class="modal-title">پیوستن به اتاق</h2>
+      <p class="modal-desc">کد اتاق رو وارد کن:</p>
+      
+      <input 
+        type="text" 
+        class="room-code-input" 
+        id="roomCodeInput"
+        placeholder="------"
+        maxlength="6"
+        dir="ltr"
+        autocomplete="off"
+      >
+      
+      <p class="modal-message" id="joinMessage"></p>
+      
+      <button class="btn btn-primary" id="confirmJoinBtn">
+        <span class="btn-icon">✓</span>
+        <span>پیوستن</span>
+      </button>
+      
+      <button class="btn btn-secondary" id="cancelJoinBtn">
+        <span class="btn-icon">✕</span>
+        <span>لغو</span>
+      </button>
+    </div>
+  </div>
+  
+  <footer class="footer">
+    <p>© ۱۴۰۵ داماکور | ساخته شده توسط پروگ آرت</p>
+  </footer>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="storage.js"></script>
+  <script src="online.js"></script>
+  
+</body>
+</html>
