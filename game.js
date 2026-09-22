@@ -8,8 +8,18 @@
   /* ─── ثابت‌ها ─── */
   const BOARD_SIZE = 8;
   const CELL = 60;
-  const PLAYER = 'white';   // بازیکن انسانی
-  const AI = 'black';        // ربات
+  const PLAYER = 'white';
+  const AI = 'black';
+  
+  /* ─── جوایز داماکوین ─── */
+  const REWARDS = {
+    easy: 10,
+    medium: 25,
+    hard: 50,
+    perPiece: 1,
+    perKing: 5,
+    perfectBonus: 25,
+  };
   
   /* ─── وضعیت بازی ─── */
   let board = [];
@@ -17,8 +27,18 @@
   let possibleMoves = [];
   let currentTurn = PLAYER;
   let gameOver = false;
-  let gameMode = 'ai';        // 'ai' یا 'pvp'
+  let gameMode = 'ai';
+  let difficulty = 'easy';
   let aiThinking = false;
+  let isLoggedIn = false;
+  
+  /* ─── آمار این بازی ─── */
+  let sessionStats = {
+    piecesCaptured: 0,
+    kingsMade: 0,
+    playerPiecesLost: 0,
+    coinsEarned: 0,
+  };
   
   /* ─── DOM ─── */
   const canvas = document.getElementById('board');
@@ -31,32 +51,76 @@
   const myBar = document.getElementById('myBar');
   const opponentName = document.getElementById('opponentName');
   const myName = document.getElementById('myName');
+  const gameCoin = document.getElementById('gameCoin');
+  const coinEarned = document.getElementById('coinEarned');
   
   /* ─── راه‌اندازی ─── */
-  function init() {
-    // تشخیص حالت بازی از URL
+  async function init() {
     const params = new URLSearchParams(window.location.search);
     gameMode = params.get('mode') === 'pvp' ? 'pvp' : 'ai';
+    difficulty = params.get('difficulty') || 'medium';
+    
+    // چک لاگین
+    const user = await Storage.getCurrentUser();
+    isLoggedIn = !!user;
+    
+    // اگه لاگین نکرده و بازی آنلاینه، برو لاگین
+    if (!isLoggedIn && gameMode === 'online') {
+      window.location.href = 'login.html';
+      return;
+    }
     
     // تنظیم نام‌ها
     if (gameMode === 'ai') {
-      opponentName.textContent = 'ربات 🤖';
-      myName.textContent = 'شما';
+      const diffEmoji = difficulty === 'easy' ? '🟢' 
+                     : difficulty === 'hard' ? '🔴' : '🟡';
+      opponentName.textContent = `ربات ${diffEmoji}`;
+      
+      if (isLoggedIn) {
+        const profile = await Storage.getProfile();
+        myName.textContent = profile.username || 'شما';
+      } else {
+        myName.textContent = 'مهمان';
+      }
     } else {
       opponentName.textContent = 'بازیکن ۲';
       myName.textContent = 'بازیکن ۱';
     }
     
-    // ساخت تخته
+    // نمایش داماکوین
+    await updateCoinDisplay();
+    
     resetGame();
     
-    // رویدادها
     canvas.addEventListener('click', onCanvasClick);
     document.getElementById('resetBtn').addEventListener('click', resetGame);
     document.getElementById('playAgainBtn').addEventListener('click', () => {
       winnerModal.classList.remove('show');
       resetGame();
     });
+  }
+  
+  /* ─── نمایش داماکوین ─── */
+  async function updateCoinDisplay() {
+    const persian = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+    
+    if (!isLoggedIn) {
+      gameCoin.textContent = '۰';
+      return;
+    }
+    
+    const profile = await Storage.getProfile();
+    const count = profile.damacoin || 0;
+    gameCoin.textContent = String(count).split('').map(d => persian[d] || d).join('');
+  }
+  
+  /* ─── نمایش داماکوین کسب‌شده ─── */
+  function showCoinEarned(amount) {
+    const persian = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+    const amountFa = String(amount).split('').map(d => persian[d] || d).join('');
+    coinEarned.textContent = `+${amountFa} 🪙`;
+    coinEarned.classList.add('show');
+    setTimeout(() => coinEarned.classList.remove('show'), 1800);
   }
   
   /* ─── ریست بازی ─── */
@@ -67,17 +131,22 @@
     currentTurn = PLAYER;
     gameOver = false;
     aiThinking = false;
+    sessionStats = {
+      piecesCaptured: 0,
+      kingsMade: 0,
+      playerPiecesLost: 0,
+      coinsEarned: 0,
+    };
     winnerModal.classList.remove('show');
     
     updateUI();
     drawBoard();
   }
   
-  /* ─── ساخت تخته اولیه ─── */
+  /* ─── ساخت تخته ─── */
   function createInitialBoard() {
     const b = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
     
-    // مهره‌های سیاه (بالا) - ردیف 0 تا 2
     for (let r = 0; r < 3; r++) {
       for (let c = 0; c < BOARD_SIZE; c++) {
         if ((r + c) % 2 === 1) {
@@ -86,7 +155,6 @@
       }
     }
     
-    // مهره‌های سفید (پایین) - ردیف 5 تا 7
     for (let r = 5; r < BOARD_SIZE; r++) {
       for (let c = 0; c < BOARD_SIZE; c++) {
         if ((r + c) % 2 === 1) {
@@ -98,9 +166,8 @@
     return b;
   }
   
-  /* ─── به‌روزرسانی رابط کاربری ─── */
+  /* ─── UI ─── */
   function updateUI() {
-    // شمارش مهره‌ها
     let whiteCount = 0;
     let blackCount = 0;
     
@@ -111,14 +178,15 @@
       }
     }
     
-    document.getElementById('myPieces').textContent = toPersianNumber(whiteCount);
-    document.getElementById('opponentPieces').textContent = toPersianNumber(blackCount);
+    const persian = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+    const fa = (n) => String(n).split('').map(d => persian[d] || d).join('');
     
-    // نوارهای فعال
+    document.getElementById('myPieces').textContent = fa(whiteCount);
+    document.getElementById('opponentPieces').textContent = fa(blackCount);
+    
     opponentBar.classList.toggle('active', currentTurn === AI);
     myBar.classList.toggle('active', currentTurn === PLAYER);
     
-    // نوار وضعیت
     if (gameOver) return;
     
     if (currentTurn === PLAYER) {
@@ -134,86 +202,54 @@
     }
   }
   
-  /* ─── تبدیل عدد به فارسی ─── */
-  function toPersianNumber(num) {
-    const persian = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-    return String(num).split('').map(d => persian[d] || d).join('');
-  }
-  
   /* ─── رسم تخته ─── */
   function drawBoard() {
     for (let r = 0; r < BOARD_SIZE; r++) {
       for (let c = 0; c < BOARD_SIZE; c++) {
-        // رنگ خانه
         const isLight = (r + c) % 2 === 0;
         ctx.fillStyle = isLight ? '#F0D9B5' : '#B58863';
         ctx.fillRect(c * CELL, r * CELL, CELL, CELL);
         
-        // هایلایت انتخاب
         if (selected && selected.r === r && selected.c === c) {
           ctx.fillStyle = 'rgba(251, 191, 36, 0.6)';
           ctx.fillRect(c * CELL, r * CELL, CELL, CELL);
         }
         
-        // هایلایت حرکت‌های ممکن
         const move = possibleMoves.find(m => m.r === r && m.c === c);
         if (move) {
-          if (move.jump) {
-            // دایره قرمز برای خوردن
-            ctx.beginPath();
-            ctx.arc(
-              c * CELL + CELL / 2,
-              r * CELL + CELL / 2,
-              12,
-              0,
-              Math.PI * 2
-            );
-            ctx.fillStyle = 'rgba(239, 68, 68, 0.7)';
-            ctx.fill();
-          } else {
-            // نقطه سبز برای حرکت ساده
-            ctx.beginPath();
-            ctx.arc(
-              c * CELL + CELL / 2,
-              r * CELL + CELL / 2,
-              10,
-              0,
-              Math.PI * 2
-            );
-            ctx.fillStyle = 'rgba(16, 185, 129, 0.7)';
-            ctx.fill();
-          }
+          ctx.beginPath();
+          ctx.arc(
+            c * CELL + CELL / 2,
+            r * CELL + CELL / 2,
+            move.jump ? 12 : 10,
+            0,
+            Math.PI * 2
+          );
+          ctx.fillStyle = move.jump 
+            ? 'rgba(239, 68, 68, 0.7)' 
+            : 'rgba(16, 185, 129, 0.7)';
+          ctx.fill();
         }
         
-        // رسم مهره
         const piece = board[r][c];
-        if (piece) {
-          drawPiece(c, r, piece);
-        }
+        if (piece) drawPiece(c, r, piece);
       }
     }
   }
   
-  /* ─── رسم مهره ─── */
   function drawPiece(c, r, piece) {
     const cx = c * CELL + CELL / 2;
     const cy = r * CELL + CELL / 2;
     const radius = CELL / 2 - 6;
     
-    // سایه مهره
     ctx.beginPath();
     ctx.arc(cx + 2, cy + 3, radius, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
     ctx.fill();
     
-    // گرادیانت مهره
     const gradient = ctx.createRadialGradient(
-      cx - radius / 3,
-      cy - radius / 3,
-      radius / 6,
-      cx,
-      cy,
-      radius
+      cx - radius / 3, cy - radius / 3, radius / 6,
+      cx, cy, radius
     );
     
     if (piece.color === 'white') {
@@ -224,18 +260,14 @@
       gradient.addColorStop(1, '#111827');
     }
     
-    // بدنه مهره
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);
     ctx.fillStyle = gradient;
     ctx.fill();
-    
-    // حاشیه
     ctx.strokeStyle = piece.color === 'white' ? '#888' : '#000';
     ctx.lineWidth = 2;
     ctx.stroke();
     
-    // تاج برای شاه
     if (piece.king) {
       ctx.font = '28px Arial';
       ctx.textAlign = 'center';
@@ -244,7 +276,7 @@
     }
   }
   
-  /* ─── پیدا کردن حرکت‌های مجاز ─── */
+  /* ─── حرکت‌های مجاز ─── */
   function getValidMoves(r, c) {
     const piece = board[r][c];
     if (!piece) return [];
@@ -253,27 +285,21 @@
     const directions = piece.king
       ? [[-1, -1], [-1, 1], [1, -1], [1, 1]]
       : piece.color === 'white'
-        ? [[-1, -1], [-1, 1]]   // سفید به سمت بالا
-        : [[1, -1], [1, 1]];     // سیاه به سمت پایین
+        ? [[-1, -1], [-1, 1]]
+        : [[1, -1], [1, 1]];
     
     for (const [dr, dc] of directions) {
-      // حرکت ساده
-      const nr = r + dr;
-      const nc = c + dc;
+      const nr = r + dr, nc = c + dc;
       if (isInBounds(nr, nc) && !board[nr][nc]) {
         moves.push({ r: nr, c: nc, jump: false });
       }
       
-      // پرش (خوردن حریف)
-      const jr = r + dr * 2;
-      const jc = c + dc * 2;
+      const jr = r + dr * 2, jc = c + dc * 2;
       if (isInBounds(jr, jc) && !board[jr][jc]) {
         const midPiece = board[nr]?.[nc];
         if (midPiece && midPiece.color !== piece.color) {
           moves.push({
-            r: jr,
-            c: jc,
-            jump: true,
+            r: jr, c: jc, jump: true,
             captured: { r: nr, c: nc }
           });
         }
@@ -283,12 +309,11 @@
     return moves;
   }
   
-  /* ─── بررسی داخل تخته ─── */
   function isInBounds(r, c) {
     return r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE;
   }
   
-  /* ─── کلیک روی تخته ─── */
+  /* ─── کلیک ─── */
   function onCanvasClick(e) {
     if (gameOver || aiThinking) return;
     if (currentTurn !== PLAYER) return;
@@ -305,7 +330,6 @@
     
     if (!isInBounds(r, c)) return;
     
-    // اگه روی مهره خودی کلیک شد
     const piece = board[r][c];
     if (piece && piece.color === PLAYER) {
       selected = { r, c };
@@ -314,62 +338,67 @@
       return;
     }
     
-    // اگه روی یه خانه قابل حرکت کلیک شد
     if (selected) {
       const move = possibleMoves.find(m => m.r === r && m.c === c);
-      if (move) {
-        executeMove(selected, move);
-      }
+      if (move) executeMove(selected, move);
     }
   }
   
   /* ─── اجرای حرکت ─── */
-  function executeMove(from, to) {
+  async function executeMove(from, to) {
     const piece = board[from.r][from.c];
     
-    // حذف مهره خورده شده
     if (to.jump && to.captured) {
       board[to.captured.r][to.captured.c] = null;
+      sessionStats.piecesCaptured++;
+      
+      // جایزه: خوردن مهره
+      if (isLoggedIn) {
+        await Storage.addDamacoin(REWARDS.perPiece);
+        showCoinEarned(REWARDS.perPiece);
+        updateCoinDisplay();
+      }
     }
     
-    // جابجایی
     board[to.r][to.c] = piece;
     board[from.r][from.c] = null;
     
-    // ارتقا به شاه
     if (
       (piece.color === 'white' && to.r === 0) ||
       (piece.color === 'black' && to.r === BOARD_SIZE - 1)
     ) {
       piece.king = true;
+      if (piece.color === PLAYER) {
+        sessionStats.kingsMade++;
+        
+        if (isLoggedIn) {
+          await Storage.addDamacoin(REWARDS.perKing);
+          showCoinEarned(REWARDS.perKing);
+          updateCoinDisplay();
+        }
+      }
     }
     
     selected = null;
     possibleMoves = [];
-    
-    // تغییر نوبت
     currentTurn = currentTurn === PLAYER ? AI : PLAYER;
     
     drawBoard();
     updateUI();
     
-    // بررسی پایان بازی
     if (checkGameOver()) return;
     
-    // نوبت ربات
     if (gameMode === 'ai' && currentTurn === AI) {
       aiThinking = true;
       updateUI();
-      setTimeout(makeAIMove, 700);
+      setTimeout(makeAIMove, 600);
     }
   }
   
-  /* ─── بررسی پایان بازی ─── */
+  /* ─── پایان بازی ─── */
   function checkGameOver() {
-    let whiteCount = 0;
-    let blackCount = 0;
-    let whiteMoves = 0;
-    let blackMoves = 0;
+    let whiteCount = 0, blackCount = 0;
+    let whiteMoves = 0, blackMoves = 0;
     
     for (let r = 0; r < BOARD_SIZE; r++) {
       for (let c = 0; c < BOARD_SIZE; c++) {
@@ -387,41 +416,68 @@
     }
     
     let winner = null;
-    
-    if (whiteCount === 0 || whiteMoves === 0) {
-      winner = 'black';
-    } else if (blackCount === 0 || blackMoves === 0) {
-      winner = 'white';
-    }
+    if (whiteCount === 0 || whiteMoves === 0) winner = 'black';
+    else if (blackCount === 0 || blackMoves === 0) winner = 'white';
     
     if (winner) {
       gameOver = true;
       aiThinking = false;
-      showWinner(winner);
+      handleGameEnd(winner === PLAYER);
       return true;
     }
     
     return false;
   }
   
-  /* ─── نمایش برنده ─── */
-  function showWinner(winner) {
-    const isPlayerWin = winner === PLAYER;
-    
-    winnerIcon.textContent = isPlayerWin ? '🎉' : '😢';
-    
+  /* ─── مدیریت پایان ─── */
+  async function handleGameEnd(playerWon) {
     if (gameMode === 'ai') {
-      winnerText.textContent = isPlayerWin ? 'بردی!' : 'باختی!';
+      if (playerWon) {
+        let reward = REWARDS[difficulty] || REWARDS.medium;
+        let perfect = false;
+        
+        if (sessionStats.playerPiecesLost === 0) {
+          reward += REWARDS.perfectBonus;
+          perfect = true;
+        }
+        
+        // ثبت در Supabase
+        if (isLoggedIn) {
+          await Storage.addDamacoin(reward);
+          await Storage.recordWin(difficulty, {
+            piecesCaptured: sessionStats.piecesCaptured,
+            kingsMade: sessionStats.kingsMade,
+            perfectWin: perfect,
+          });
+          await updateCoinDisplay();
+        }
+        
+        winnerIcon.textContent = '🎉';
+        winnerText.textContent = 'بردی!';
+        
+        let rewardMsg = isLoggedIn ? `+${reward} 🪙 داماکوین` : '';
+        if (perfect) rewardMsg += ' (برد بی‌نقص! ⭐)';
+        
+        statusBar.textContent = `🎉 بردی! ${rewardMsg}`;
+        statusBar.className = 'status-bar';
+      } else {
+        if (isLoggedIn) {
+          await Storage.recordLoss();
+        }
+        
+        winnerIcon.textContent = '😢';
+        winnerText.textContent = 'باختی!';
+        statusBar.textContent = '😢 باختی! دوباره تلاش کن';
+        statusBar.className = 'status-bar';
+      }
     } else {
-      winnerText.textContent = isPlayerWin ? 'بازیکن ۱ برد!' : 'بازیکن ۲ برد!';
+      winnerIcon.textContent = '🎉';
+      winnerText.textContent = playerWon ? 'بازیکن ۱ برد!' : 'بازیکن ۲ برد!';
     }
-    
-    statusBar.textContent = isPlayerWin ? '🎉 بردی!' : '😢 باختی!';
-    statusBar.className = 'status-bar';
     
     setTimeout(() => {
       winnerModal.classList.add('show');
-    }, 400);
+    }, 500);
   }
   
   /* ═══════════════════════════════════════
@@ -442,20 +498,21 @@
       return;
     }
     
-    // انتخاب بهترین حرکت
-    const bestMove = chooseBestMove(allMoves);
-    
-    if (bestMove) {
-      executeAIMove(bestMove);
+    let chosenMove;
+    if (difficulty === 'easy') {
+      chosenMove = chooseEasyMove(allMoves);
+    } else if (difficulty === 'medium') {
+      chosenMove = chooseMediumMove(allMoves);
+    } else {
+      chosenMove = chooseHardMove(allMoves);
     }
     
+    if (chosenMove) executeAIMove(chosenMove);
     aiThinking = false;
   }
   
-  /* ─── جمع کردن همه حرکت‌های ربات ─── */
   function getAllAIMoves() {
     const moves = [];
-    
     for (let r = 0; r < BOARD_SIZE; r++) {
       for (let c = 0; c < BOARD_SIZE; c++) {
         const piece = board[r][c];
@@ -463,55 +520,39 @@
         
         const pieceMoves = getValidMoves(r, c);
         for (const move of pieceMoves) {
-          moves.push({
-            from: { r, c },
-            to: move
-          });
+          moves.push({ from: { r, c }, to: move });
         }
       }
     }
-    
     return moves;
   }
   
-  /* ─── انتخاب بهترین حرکت ─── */
-  function chooseBestMove(moves) {
-    // اولویت‌بندی:
-    // 1. خوردن مهره حریف
-    // 2. رسیدن به شاه
-    // 3. نزدیک شدن به مهره‌های حریف
-    
+  function chooseEasyMove(moves) {
+    if (Math.random() < 0.3) return chooseMediumMove(moves);
+    return moves[Math.floor(Math.random() * moves.length)];
+  }
+  
+  function chooseMediumMove(moves) {
     let bestMove = null;
     let bestScore = -Infinity;
     
     for (const move of moves) {
       let score = 0;
       
-      // خوردن مهره
       if (move.to.jump) {
         score += 100;
-        
-        // پاداش بیشتر برای خوردن مهره شاه
         const captured = board[move.to.captured.r][move.to.captured.c];
         if (captured?.king) score += 50;
       }
       
-      // رسیدن به شاه
       const piece = board[move.from.r][move.from.c];
-      if (!piece.king && move.to.r === BOARD_SIZE - 1) {
-        score += 80;
-      }
+      if (!piece.king && move.to.r === BOARD_SIZE - 1) score += 80;
       
-      // پیشروی به جلو
       score += (move.to.r - move.from.r) * 5;
       
-      // نزدیک شدن به لبه‌ها (امن‌تر)
-      if (move.to.c === 0 || move.to.c === BOARD_SIZE - 1) {
-        score += 3;
-      }
+      if (move.to.c === 0 || move.to.c === BOARD_SIZE - 1) score += 3;
       
-      // کمی تصادفی برای تنوع
-      score += Math.random() * 5;
+      score += Math.random() * 10;
       
       if (score > bestScore) {
         bestScore = score;
@@ -522,29 +563,100 @@
     return bestMove;
   }
   
-  /* ─── اجرای حرکت ربات ─── */
-  function executeAIMove(move) {
-    const piece = board[move.from.r][move.from.c];
+  function chooseHardMove(moves) {
+    let bestMove = null;
+    let bestScore = -Infinity;
     
-    // حذف مهره خورده شده
+    for (const move of moves) {
+      let score = 0;
+      
+      if (move.to.jump) {
+        score += 150;
+        const captured = board[move.to.captured.r][move.to.captured.c];
+        if (captured?.king) score += 100;
+      }
+      
+      const piece = board[move.from.r][move.from.c];
+      if (!piece.king && move.to.r === BOARD_SIZE - 1) score += 120;
+      
+      const danger = evaluateDangerAfterMove(move);
+      score -= danger * 60;
+      
+      score += (move.to.r - move.from.r) * 8;
+      
+      if (move.to.c === 0 || move.to.c === BOARD_SIZE - 1) score += 5;
+      
+      const centerDist = Math.abs(move.to.c - 3.5);
+      score -= centerDist * 2;
+      
+      score += Math.random() * 3;
+      
+      if (score > bestScore) {
+        bestScore = score;
+        bestMove = move;
+      }
+    }
+    
+    return bestMove;
+  }
+  
+  function evaluateDangerAfterMove(move) {
+    const piece = board[move.from.r][move.from.c];
+    const captured = move.to.jump 
+      ? board[move.to.captured.r][move.to.captured.c] 
+      : null;
+    
+    board[move.to.r][move.to.c] = piece;
+    board[move.from.r][move.from.c] = null;
     if (move.to.jump && move.to.captured) {
       board[move.to.captured.r][move.to.captured.c] = null;
     }
     
-    // جابجایی
+    let danger = 0;
+    
+    for (let r = 0; r < BOARD_SIZE; r++) {
+      for (let c = 0; c < BOARD_SIZE; c++) {
+        const p = board[r][c];
+        if (!p || p.color !== PLAYER) continue;
+        
+        const playerMoves = getValidMoves(r, c);
+        for (const pm of playerMoves) {
+          if (pm.jump && pm.captured && 
+              pm.captured.r === move.to.r && 
+              pm.captured.c === move.to.c) {
+            danger += p.king ? 3 : 1;
+          }
+        }
+      }
+    }
+    
+    board[move.from.r][move.from.c] = piece;
+    board[move.to.r][move.to.c] = null;
+    if (captured) {
+      board[move.to.captured.r][move.to.captured.c] = captured;
+    }
+    
+    return danger;
+  }
+  
+  function executeAIMove(move) {
+    const piece = board[move.from.r][move.from.c];
+    
+    if (move.to.jump && move.to.captured) {
+      board[move.to.captured.r][move.to.captured.c] = null;
+      sessionStats.playerPiecesLost++;
+    }
+    
     board[move.to.r][move.to.c] = piece;
     board[move.from.r][move.from.c] = null;
     
-    // ارتقا به شاه
     if (piece.color === 'black' && move.to.r === BOARD_SIZE - 1) {
       piece.king = true;
     }
     
     currentTurn = PLAYER;
-    
     drawBoard();
     updateUI();
-    
     checkGameOver();
   }
   
