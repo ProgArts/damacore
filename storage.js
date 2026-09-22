@@ -5,14 +5,14 @@
 const Storage = (function () {
   'use strict';
   
-  /* ─── کش لوکال برای سرعت ─── */
+  /* ─── کش لوکال ─── */
   let cache = {
     profile: null,
     stats: null,
     lastFetch: 0,
   };
   
-  const CACHE_TIME = 5000; // ۵ ثانیه
+  const CACHE_TIME = 5000;
   
   /* ─── چک لاگین ─── */
   async function getCurrentUser() {
@@ -24,11 +24,8 @@ const Storage = (function () {
   async function getProfile(forceRefresh = false) {
     const user = await getCurrentUser();
     
-    if (!user) {
-      return getGuestProfile();
-    }
+    if (!user) return getGuestProfile();
     
-    // چک کش
     const now = Date.now();
     if (!forceRefresh && cache.profile && (now - cache.lastFetch) < CACHE_TIME) {
       return cache.profile;
@@ -53,7 +50,6 @@ const Storage = (function () {
     }
   }
   
-  /* ─── پروفایل مهمان ─── */
   function getGuestProfile() {
     return {
       id: null,
@@ -69,9 +65,7 @@ const Storage = (function () {
   async function getStats(forceRefresh = false) {
     const user = await getCurrentUser();
     
-    if (!user) {
-      return getGuestStats();
-    }
+    if (!user) return getGuestStats();
     
     const now = Date.now();
     if (!forceRefresh && cache.stats && (now - cache.lastFetch) < CACHE_TIME) {
@@ -97,7 +91,6 @@ const Storage = (function () {
     }
   }
   
-  /* ─── آمار مهمان ─── */
   function getGuestStats() {
     return {
       wins: 0,
@@ -117,18 +110,13 @@ const Storage = (function () {
   async function addDamacoin(amount) {
     const user = await getCurrentUser();
     
-    if (!user) {
-      console.log('مهمان نمی‌تونه داماکوین بگیره');
-      return 0;
-    }
+    if (!user) return 0;
     
     try {
-      // اول مقدار فعلی رو بگیر
       const profile = await getProfile();
       const currentAmount = profile.damacoin || 0;
       const newAmount = currentAmount + amount;
       
-      // آپدیت
       const { error } = await supabaseClient
         .from('profiles')
         .update({
@@ -139,7 +127,6 @@ const Storage = (function () {
       
       if (error) throw error;
       
-      // آپدیت کش
       if (cache.profile) {
         cache.profile.damacoin = newAmount;
       }
@@ -166,10 +153,7 @@ const Storage = (function () {
   async function recordWin(difficulty, sessionStats = {}) {
     const user = await getCurrentUser();
     
-    if (!user) {
-      console.log('مهمان: برد ثبت نمی‌شه');
-      return null;
-    }
+    if (!user) return null;
     
     try {
       const stats = await getStats();
@@ -180,7 +164,6 @@ const Storage = (function () {
         updated_at: new Date().toISOString(),
       };
       
-      // اضافه کردن آمار اضافی
       if (sessionStats.piecesCaptured) {
         updated.pieces_captured = (stats.pieces_captured || 0) + sessionStats.piecesCaptured;
       }
@@ -191,7 +174,6 @@ const Storage = (function () {
         updated.perfect_wins = (stats.perfect_wins || 0) + 1;
       }
       
-      // آمار بر اساس سختی
       if (difficulty === 'easy') {
         updated.easy_wins = (stats.easy_wins || 0) + 1;
       } else if (difficulty === 'medium') {
@@ -207,9 +189,7 @@ const Storage = (function () {
       
       if (error) throw error;
       
-      // آپدیت کش
       cache.stats = { ...stats, ...updated };
-      
       return updated;
       
     } catch (error) {
@@ -222,9 +202,7 @@ const Storage = (function () {
   async function recordLoss() {
     const user = await getCurrentUser();
     
-    if (!user) {
-      return null;
-    }
+    if (!user) return null;
     
     try {
       const stats = await getStats();
@@ -243,7 +221,6 @@ const Storage = (function () {
       if (error) throw error;
       
       cache.stats = { ...stats, ...updated };
-      
       return updated;
       
     } catch (error) {
@@ -269,7 +246,6 @@ const Storage = (function () {
       
       if (error) throw error;
       
-      // آپدیت کش
       if (cache.profile) {
         Object.assign(cache.profile, data);
       }
