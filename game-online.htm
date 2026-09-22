@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بازی آنلاین | داماکور</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="game.css">
+  <link rel="stylesheet" href="game-online.css">
+</head>
+<body class="game-page">
+  
+  <div class="particles" aria-hidden="true">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+  
+  <!-- ═══ هدر بازی ═══ -->
+  <header class="game-header">
+    <button class="back-icon" id="leaveBtn">←</button>
+    
+    <div class="game-title">
+      <img src="assets/logo.png" alt="" class="mini-logo">
+      <span>بازی آنلاین</span>
+    </div>
+    
+    <div class="connection-status" id="connectionStatus">
+      <span class="dot"></span>
+    </div>
+  </header>
+  
+  <!-- ═══ اطلاعات حریف ═══ -->
+  <div class="player-bar opponent-bar" id="opponentBar">
+    <div class="player-info">
+      <span class="player-dot black"></span>
+      <span class="player-name" id="opponentName">حریف</span>
+    </div>
+    <div class="player-stats">
+      <span class="stat">
+        <span class="stat-icon">🪙</span>
+        <span id="opponentPieces">۱۲</span>
+      </span>
+    </div>
+  </div>
+  
+  <!-- ═══ تخته بازی ═══ -->
+  <div class="board-wrapper">
+    <canvas id="board" width="480" height="480"></canvas>
+  </div>
+  
+  <!-- ═══ اطلاعات شما ═══ -->
+  <div class="player-bar my-bar" id="myBar">
+    <div class="player-info">
+      <span class="player-dot white"></span>
+      <span class="player-name" id="myName">شما</span>
+    </div>
+    <div class="player-stats">
+      <span class="stat">
+        <span class="stat-icon">🪙</span>
+        <span id="myPieces">۱۲</span>
+      </span>
+    </div>
+  </div>
+  
+  <!-- ═══ نوار وضعیت ═══ -->
+  <div class="status-bar" id="statusBar">
+    در حال اتصال...
+  </div>
+  
+  <!-- ═══ پیام برنده ═══ -->
+  <div class="winner-modal" id="winnerModal">
+    <div class="winner-content">
+      <div class="winner-icon" id="winnerIcon">🎉</div>
+      <h2 class="winner-text" id="winnerText">بردی!</h2>
+      <div class="winner-buttons">
+        <a href="online.html" class="btn btn-primary">
+          <span class="btn-icon">🎮</span>
+          <span>بازی جدید</span>
+        </a>
+        <a href="mode.html" class="btn btn-secondary">
+          <span class="btn-icon">🏠</span>
+          <span>منوی اصلی</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ═══ پیام خروج حریف ═══ -->
+  <div class="modal" id="opponentLeftModal">
+    <div class="modal-content">
+      <div class="modal-icon">😢</div>
+      <h2 class="modal-title">حریف بازی رو ترک کرد</h2>
+      <p class="modal-desc">حریف از بازی خارج شد</p>
+      <a href="online.html" class="btn btn-primary">
+        <span class="btn-icon">🎮</span>
+        <span>بازی جدید</span>
+      </a>
+      <a href="mode.html" class="btn btn-secondary">
+        <span class="btn-icon">🏠</span>
+        <span>منوی اصلی</span>
+      </a>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="storage.js"></script>
+  <script src="game-online.js"></script>
+  
+</body>
+</html>
