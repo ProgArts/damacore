@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>پروفایل | داماکور</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+  
+  <div class="particles" aria-hidden="true">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+  
+  <header class="header profile-header">
+    <div class="logo-wrapper">
+      <img src="assets/logo.png" alt="داماکور" class="logo-img">
+      <h1 class="logo-title">داماکور</h1>
+    </div>
+  </header>
+  
+  <main class="profile-menu">
+    
+    <!-- ─── کارت پروفایل ─── -->
+    <div class="profile-card">
+      <div class="profile-avatar">👤</div>
+      <h2 class="profile-name" id="profileName">بازیکن</h2>
+      <p class="profile-level" id="profileLevel">🌱 تازه‌کار</p>
+    </div>
+    
+    <!-- ─── داماکوین ─── -->
+    <div class="coin-section">
+      <div class="coin-display">
+        <div class="coin-icon-big">🪙</div>
+        <div class="coin-info">
+          <div class="coin-amount" id="coinAmount">۰</div>
+          <div class="coin-label">داماکوین</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- ─── آمار کلی ─── -->
+    <div class="stats-section">
+      <h3 class="section-title">📊 آمار کلی</h3>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">🎮</div>
+          <div class="stat-value" id="totalGames">۰</div>
+          <div class="stat-label">بازی کل</div>
+        </div>
+        
+        <div class="stat-card win">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-value" id="wins">۰</div>
+          <div class="stat-label">برد</div>
+        </div>
+        
+        <div class="stat-card loss">
+          <div class="stat-icon">💔</div>
+          <div class="stat-value" id="losses">۰</div>
+          <div class="stat-label">باخت</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-value" id="winRate">۰٪</div>
+          <div class="stat-label">نرخ برد</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- ─── آمار نبرد ─── -->
+    <div class="stats-section">
+      <h3 class="section-title">⚔️ آمار نبرد</h3>
+      
+      <div class="stats-list">
+        <div class="stat-row">
+          <span class="stat-row-icon">🎯</span>
+          <span class="stat-row-label">مهره‌های خورده شده</span>
+          <span class="stat-row-value" id="piecesCaptured">۰</span>
+        </div>
+        
+        <div class="stat-row">
+          <span class="stat-row-icon">👑</span>
+          <span class="stat-row-label">شاه ساخته شده</span>
+          <span class="stat-row-value" id="kingsMade">۰</span>
+        </div>
+        
+        <div class="stat-row">
+          <span class="stat-row-icon">⭐</span>
+          <span class="stat-row-label">برد بی‌نقص</span>
+          <span class="stat-row-value" id="perfectWins">۰</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- ─── برد بر اساس سختی ─── -->
+    <div class="stats-section">
+      <h3 class="section-title">🎖️ برد بر اساس سختی</h3>
+      
+      <div class="difficulty-stats">
+        <div class="difficulty-stat easy">
+          <span class="difficulty-dot">🟢</span>
+          <span class="difficulty-name">آسان</span>
+          <span class="difficulty-value" id="easyWins">۰</span>
+        </div>
+        
+        <div class="difficulty-stat medium">
+          <span class="difficulty-dot">🟡</span>
+          <span class="difficulty-name">متوسط</span>
+          <span class="difficulty-value" id="mediumWins">۰</span>
+        </div>
+        
+        <div class="difficulty-stat hard">
+          <span class="difficulty-dot">🔴</span>
+          <span class="difficulty-name">سخت</span>
+          <span class="difficulty-value" id="hardWins">۰</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- ─── دکمه‌ها ─── -->
+    <div class="profile-buttons">
+      <a href="index.html" class="btn btn-secondary">
+        <span class="btn-icon">🏠</span>
+        <span>منوی اصلی</span>
+      </a>
+      
+      <button class="btn btn-secondary danger" onclick="resetProfile()">
+        <span class="btn-icon">🗑️</span>
+        <span>ریست پروفایل</span>
+      </button>
+    </div>
+    
+  </main>
+  
+  <footer class="footer">
+    <p>© ۱۴۰۵ داماکور | ساخته شده توسط پروگ آرت</p>
+  </footer>
+  
+  <script src="storage.js"></script>
+  <script>
+    const persian = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+    function fa(num) {
+      return String(num).split('').map(d => persian[d] || d).join('');
+    }
+    
+    function loadProfile() {
+      const profile = Storage.getProfile();
+      const stats = Storage.getStats();
+      
+      document.getElementById('profileName').textContent = profile.name || 'بازیکن';
+      document.getElementById('coinAmount').textContent = fa(profile.damacoin || 0);
+      
+      document.getElementById('totalGames').textContent = fa(stats.totalGames || 0);
+      document.getElementById('wins').textContent = fa(stats.wins || 0);
+      document.getElementById('losses').textContent = fa(stats.losses || 0);
+      
+      const rate = stats.totalGames > 0 
+        ? Math.round((stats.wins / stats.totalGames) * 100) 
+        : 0;
+      document.getElementById('winRate').textContent = fa(rate) + '٪';
+      
+      document.getElementById('piecesCaptured').textContent = fa(stats.piecesCaptured || 0);
+      document.getElementById('kingsMade').textContent = fa(stats.kingsMade || 0);
+      document.getElementById('perfectWins').textContent = fa(stats.perfectWins || 0);
+      
+      document.getElementById('easyWins').textContent = fa(stats.easyWins || 0);
+      document.getElementById('mediumWins').textContent = fa(stats.mediumWins || 0);
+      document.getElementById('hardWins').textContent = fa(stats.hardWins || 0);
+      
+      const level = getLevel(stats.wins || 0);
+      document.getElementById('profileLevel').textContent = level;
+    }
+    
+    function getLevel(wins) {
+      if (wins >= 100) return '🏆 افسانه';
+      if (wins >= 50) return '👑 استاد';
+      if (wins >= 25) return '⚔️ حرفه‌ای';
+      if (wins >= 10) return '🎯 ماهر';
+      if (wins >= 5) return '🔰 تمرین‌کار';
+      return '🌱 تازه‌کار';
+    }
+    
+    function resetProfile() {
+      if (confirm('مطمئنی می‌خوای پروفایل رو ریست کنی؟\nهمه آمار و داماکوین‌ها از بین می‌رن!')) {
+        Storage.resetAll();
+        loadProfile();
+        alert('پروفایل ریست شد!');
+      }
+    }
+    
+    loadProfile();
+  </script>
+  
+</body>
+</html>
